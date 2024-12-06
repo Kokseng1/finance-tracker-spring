@@ -7,7 +7,6 @@ const RegistrationForm = () => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "username") setUsername(value);
@@ -15,7 +14,6 @@ const RegistrationForm = () => {
     if (name === "confirmPassword") setConfirmPassword(value);
   };
 
-  // Validate form data
   const validateForm = () => {
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
@@ -28,10 +26,9 @@ const RegistrationForm = () => {
     return true;
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous error
+    setError("");
     if (!validateForm()) return;
 
     setIsSubmitting(true);
@@ -44,72 +41,107 @@ const RegistrationForm = () => {
     try {
       const response = await fetch("http://localhost:8080/register", {
         method: "POST",
-        body: new URLSearchParams(userData), // Send the data as form-urlencoded
+        body: new URLSearchParams(userData),
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded", // Correct content type
+          "Content-Type": "application/x-www-form-urlencoded",
         },
       });
 
-      // Check if the response status is not OK (error response)
       if (!response.ok) {
-        const errorMessage = await response.text(); // Extract the message from the response body
-        setError(errorMessage); // Set the error message from the response
-        console.log(errorMessage); // Log the error message for debugging
+        const errorMessage = await response.text();
+        setError(errorMessage);
+        console.log(errorMessage);
       } else {
-        // If the response status is OK, proceed with successful registration
         if (response.status === 201) {
           alert("User registered successfully!");
-          window.location.href = "/"; // Redirect to the home page or login page
+          window.location.href = "/";
         }
       }
     } catch (error) {
       console.log(error);
-      setError(error); // Catch any network or JavaScript error
+      setError(error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            name="username"
-            value={username}
-            onChange={handleChange}
-            required
-          />
-        </div>
+    <div
+      className="register-page"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        width: "100vw",
+        height: "100vh",
+        alignItems: "center",
+      }}
+    >
+      {" "}
+      <div
+        className="register-card"
+        style={{
+          // FontFace: "Poppins", sans-serif,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          //   gap: 0.7rem;
+          padding: "1.5rem",
+          width: "18rem",
+          boxShadow: "0 4px 8px 0 rgb(0 0 0 / 25%)",
+        }}
+      >
+        <h2>Register</h2>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            height: "150px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <input
+              type="text"
+              name="username"
+              placeholder="username"
+              value={username}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Confirm Password:</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={confirmPassword}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Registering..." : "Register"}
-        </button>
-      </form>
+          <div>
+            <input
+              type="password"
+              name="password"
+              placeholder="password"
+              value={password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="password"
+              name="confirmPassword"
+              placeholder="confirm password"
+              value={confirmPassword}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            style={{ width: "100px" }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Registering..." : "Register"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

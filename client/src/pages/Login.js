@@ -39,24 +39,52 @@ function LoginPage() {
   };
 
   return (
-    <div className="LoginPage">
-      <h1>Login</h1>
-
-      <button onClick={postlogin}>Login</button>
-      <div>
-        <label>username </label>
-        <input name="username" value={username} onChange={handleChange} />
+    <div
+      className="LoginPage "
+      style={{
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        className="login-card"
+        style={{
+          // FontFace: "Poppins", sans-serif,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          //   gap: 0.7rem;
+          padding: "1.5rem",
+          width: "18rem",
+          boxShadow: "0 4px 8px 0 rgb(0 0 0 / 25%)",
+        }}
+      >
+        <h1>Login</h1>
+        <div style={{ padding: "3px" }}>
+          <input
+            name="username"
+            placeholder="username"
+            value={username}
+            onChange={handleChange}
+          />
+        </div>
+        <div style={{ padding: "3px" }}>
+          <input
+            type="password"
+            name="password"
+            placeholder="password"
+            value={password}
+            onChange={handleChange}
+          />
+        </div>{" "}
+        <div style={{ padding: "6px" }}>
+          <button onClick={postlogin}>Login</button>
+          {error && <p style={{ color: "red" }}>Error : {error}</p>}
+        </div>
       </div>
-      <div>
-        <label>password </label>
-        <input
-          type="password"
-          name="password"
-          value={password}
-          onChange={handleChange}
-        />
-      </div>
-      {error && <p style={{ color: "red" }}>Error : {error}</p>}
     </div>
   );
 }
