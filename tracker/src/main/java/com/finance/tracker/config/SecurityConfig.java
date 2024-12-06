@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -26,8 +28,11 @@ public class SecurityConfig {
         .exceptionHandling(customizer -> customizer.authenticationEntryPoint(unauthorizedEntryPoint())) 
         .authorizeHttpRequests((requests) -> requests
             .requestMatchers(HttpMethod.POST, "/login", "/register", "/error").permitAll()
-            .anyRequest().authenticated())
-        .formLogin(customizer -> customizer.loginProcessingUrl("/login").defaultSuccessUrl("/api"));
+            .anyRequest().authenticated())        
+        .formLogin(customizer -> customizer
+            .loginProcessingUrl("/login")
+            .successHandler(new CustomAuthenticationSuccessHandler())
+            .failureHandler(new CustomAuthenticationFailuresHandler()));
 
         return http.build();
     }
@@ -48,5 +53,10 @@ public class SecurityConfig {
     @Bean
     public AuthenticationEntryPoint unauthorizedEntryPoint() {
         return new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED); // Respond with 401 Unauthorized
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
