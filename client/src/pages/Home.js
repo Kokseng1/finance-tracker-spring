@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import EditExpense from "../components/EditExpense";
 
 function Home() {
-  const [data, setData] = useState(null);
+  const [expenses, setExpenses] = useState(null);
   const [error, setError] = useState(null);
   const [expenseName, setExpenseName] = useState("");
   const [amount, setAmount] = useState("");
@@ -13,11 +13,32 @@ function Home() {
   const [categories, setCategories] = useState([]);
   const [editedExpense, setEditedExpense] = useState(undefined);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [totalPages, setTotalPages] = useState(undefined);
+  const [pageNumber, setPageNumber] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
+  const [sortBy, setSortBy] = useState("createdDate");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [searchedName, setSearchedName] = useState("");
+  let debounceTimeout;
 
   useEffect(() => {
     getCategories();
-    getdata();
+    getAllExpenses();
   }, []);
+
+  const handleNext = () => {
+    if (pageNumber < totalPages - 1) {
+      getAllExpenses(pageNumber + 1);
+      setPageNumber(pageNumber + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (pageNumber > 0) {
+      getAllExpenses(pageNumber - 1);
+      setPageNumber(pageNumber - 1);
+    }
+  };
 
   const getCategories = () => {
     axiosInstance
@@ -79,7 +100,7 @@ function Home() {
       setAmount("");
       setCategoryName("");
       setExpenseName("");
-      getdata();
+      getAllExpenses();
     } catch (error) {
       console.log(error);
     } finally {
@@ -87,19 +108,27 @@ function Home() {
     }
   };
 
-  const getdata = async () => {
+  const getAllExpenses = async (
+    page = pageNumber,
+    pageSizeInput = pageSize,
+    sortByInput = sortBy,
+    sortDirectionInput = sortDirection,
+    nameInput = searchedName
+  ) => {
     try {
       const response = await axiosInstance.get(
-        "http://localhost:8080/expense/allExpenses",
+        `http://localhost:8080/expense/allExpenses?page=${page}&size=${pageSizeInput}&sortBy=${sortByInput}&direction=${sortDirectionInput}&name=${nameInput}`,
         {
           withCredentials: true,
         }
       );
-      setData(response.data);
+      const { content, totalPages } = response.data;
+      setExpenses(content);
+      setTotalPages(totalPages);
       setError(null);
     } catch (error) {
       setError(error.message);
-      setData(null);
+      setExpenses(null);
       console.error("Error fetching data:", error);
     }
   };
@@ -129,11 +158,42 @@ function Home() {
         }
       );
 
-      getdata();
+      getAllExpenses();
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handlePageSizeChange = (e) => {
+    setPageSize(e.target.value);
+    getAllExpenses(pageNumber, e.target.value);
+  };
+
+  const changeSort = (e) => {
+    const target = e.target.id;
+    if (sortBy !== target) {
+      setSortBy(target);
+      getAllExpenses(pageNumber, pageSize, e.target.id);
+    } else {
+      const newDir = sortDirection === "asc" ? "desc" : "asc";
+      setSortDirection(newDir);
+      getAllExpenses(pageNumber, pageSize, sortBy, newDir);
+    }
+  };
+
+  const handleSearchNameChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+      setSearchedName(value);
+
+      clearTimeout(debounceTimeout);
+
+      debounceTimeout = setTimeout(() => {
+        getAllExpenses(pageNumber, pageSize, sortBy, sortDirection, value);
+      }, 500);
+    },
+    [pageNumber, pageSize, sortBy, sortDirection]
+  );
 
   return (
     <div className="Home">
@@ -141,21 +201,40 @@ function Home() {
       <div>
         <Link to="/expense_categories">Link to cats</Link>
       </div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}{" "}
+      <select
+        id="dropdown"
+        value={pageSize}
+        placeholder="page size"
+        onChange={handlePageSizeChange}
+      >
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+      </select>
+      <input
+        value={searchedName}
+        placeholder="search by name"
+        onChange={handleSearchNameChange}
+      />
       <table>
         <thead>
           <tr>
-            <th>name</th>
-            <th>category</th>
-            <th>amount</th>
-            <th>date</th>
-            <th></th>
+            {["name", "category", "amount", "date"].map((column) => (
+              <th
+                id={column === "date" ? "createdDate" : column}
+                key={column}
+                onClick={changeSort}
+              >
+                {column}
+              </th>
+            ))}
             <th></th>
           </tr>
         </thead>
         <tbody>
-          {data &&
-            data.map((expense) => (
+          {expenses &&
+            expenses.map((expense) => (
               <tr key={expense.id}>
                 <td>{expense.name}</td>
                 <td>
@@ -173,7 +252,7 @@ function Home() {
                       <EditExpense
                         expense={expense}
                         categories={categories}
-                        onEditComplete={getdata}
+                        onEditComplete={getAllExpenses}
                       />
                     </div>
                   )}
@@ -238,7 +317,18 @@ function Home() {
         >
           {isSubmitting ? "Adding expense..." : "Add expense"}
         </button>
-      </form>
+      </form>{" "}
+      <div>
+        <button onClick={handlePrevious} disabled={pageNumber === 0}>
+          Previous
+        </button>
+        <span>
+          Page {pageNumber + 1} of {totalPages}
+        </span>
+        <button onClick={handleNext} disabled={pageNumber >= totalPages - 1}>
+          Next
+        </button>
+      </div>
     </div>
   );
 }
