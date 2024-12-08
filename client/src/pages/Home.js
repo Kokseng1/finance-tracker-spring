@@ -103,6 +103,19 @@ function Home() {
     }
   };
 
+  const clickTestButton = async () => {
+    try {
+      const response = await axiosInstance.delete(
+        "http://localhost:8080/expense/4",
+        {
+          withCredentials: true,
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="Home">
       <h1>Homeworks!</h1>
@@ -200,6 +213,7 @@ function Home() {
       {categoryError && (
         <p style={{ color: "red" }}>Error from backend: {categoryError}</p>
       )}
+      <button onClick={clickTestButton}>test button</button>
     </div>
   );
 }
