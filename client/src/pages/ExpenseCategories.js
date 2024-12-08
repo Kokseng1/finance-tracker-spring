@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import EditExpenseCategory from "../components/EditExpenseCategory";
+import { Link } from "react-router-dom";
 
 const ExpenseCategories = () => {
   const [categories, setCategories] = useState([]);
@@ -117,7 +118,12 @@ const ExpenseCategories = () => {
           {categories.map((category) => (
             <tr key={category.id}>
               <td>{category.id}</td>
-              <td>{category.name}</td>
+              <td>
+                {" "}
+                <Link to={`/expense_categories/${category.id}`}>
+                  {category.name}
+                </Link>
+              </td>
               <td>
                 <button onClick={() => toggleEditmodal(category)}>edit</button>
                 {categoryIsEdited(category.id) && (

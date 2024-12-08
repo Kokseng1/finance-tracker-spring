@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.finance.tracker.dto.ExpenseCategoryDto;
+import com.finance.tracker.dto.ExpenseDto;
 import com.finance.tracker.entities.ExpenseCategory;
 import com.finance.tracker.repositories.ExpenseCategoryRepository;
 import com.finance.tracker.repositories.ExpenseRepository;
@@ -20,12 +21,14 @@ import com.finance.tracker.repositories.ExpenseRepository;
 public class ExpenseCategoryService {
     ExpenseRepository expenseRepository;
     ExpenseCategoryRepository expenseCategoryRepository;
+    ExpenseService expenseService;
 
     @Autowired 
-    ExpenseCategoryService(ExpenseRepository expenseRepository,  ExpenseCategoryRepository expenseCategoryRepository)
+    ExpenseCategoryService(ExpenseRepository expenseRepository,  ExpenseCategoryRepository expenseCategoryRepository, ExpenseService expenseService)
     {
         this.expenseRepository = expenseRepository;
         this.expenseCategoryRepository = expenseCategoryRepository;
+        this.expenseService = expenseService;
     }
 
     public ExpenseCategory dtoToCategory(ExpenseCategoryDto expenseCategoryDto) {
@@ -98,6 +101,20 @@ public class ExpenseCategoryService {
         expenseCategoryRepository.save(expenseCategory);
 
         return ResponseEntity.ok(expenseCategoryDto); 
+    }
+
+    public ResponseEntity<List<ExpenseDto>> getExpenses(Long id) {
+        Optional<ExpenseCategory> existingCategoryOpt = expenseCategoryRepository.findById(id);
+    
+        if (existingCategoryOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<ExpenseDto> list = existingCategoryOpt.get().getExpenses().stream()
+        .map(expense -> expenseService.expenseToDto(expense))
+        .collect(Collectors.toList()); 
+
+        return ResponseEntity.ok(list);
     }
     
 }

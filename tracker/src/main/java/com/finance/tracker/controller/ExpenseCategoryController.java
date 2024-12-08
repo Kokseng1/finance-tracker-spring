@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.finance.tracker.dto.ExpenseCategoryDto;
+import com.finance.tracker.dto.ExpenseDto;
 import com.finance.tracker.services.ExpenseCategoryService;
 
 @RestController
@@ -37,6 +38,11 @@ public class ExpenseCategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<ExpenseCategoryDto> getExpenseCategory(@PathVariable Long id) {
         return expenseCategoryService.getExpenseCategory(id);
+    }
+
+    @GetMapping("/{id}/expenses")
+    public ResponseEntity<List<ExpenseDto>> getAllCategoryExpense(@PathVariable Long id) {
+        return expenseCategoryService.getExpenses(id);
     }
     
     @DeleteMapping("/{id}")

@@ -158,7 +158,11 @@ function Home() {
             data.map((expense) => (
               <tr key={expense.id}>
                 <td>{expense.name}</td>
-                <td> {expense.categoryName}</td>
+                <td>
+                  <Link to={`/expense_categories/${expense.category_id}`}>
+                    {expense.categoryName}
+                  </Link>
+                </td>
                 <td> {expense.amount}</td>
                 <td> {expense.createdDate}</td>
                 <td>
