@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import com.finance.tracker.dto.ExpenseCategoryDto;
 import com.finance.tracker.dto.ExpenseDto;
 import com.finance.tracker.entities.Expense;
 import com.finance.tracker.entities.ExpenseCategory;

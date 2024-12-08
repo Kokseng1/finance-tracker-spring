@@ -2,6 +2,7 @@ package com.finance.tracker.services;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.finance.tracker.dto.ExpenseCategoryDto;
+import com.finance.tracker.entities.Expense;
 import com.finance.tracker.entities.ExpenseCategory;
 import com.finance.tracker.repositories.ExpenseCategoryRepository;
 import com.finance.tracker.repositories.ExpenseRepository;
@@ -27,16 +29,32 @@ public class ExpenseCategoryService {
         this.expenseCategoryRepository = expenseCategoryRepository;
     }
 
-    public ExpenseCategoryDto getExpenseCategory(@PathVariable Long id) {
-        ExpenseCategory expenseCategory = expenseCategoryRepository.findById(id).get();
+    public ExpenseCategory dtoToCategory(ExpenseCategoryDto expenseCategoryDto) {
+        ExpenseCategory expenseCategory = new ExpenseCategory();
+        expenseCategory.setName(expenseCategoryDto.getName());
+
+        return expenseCategory;
+    }
+
+    public ExpenseCategoryDto categoryToDto(ExpenseCategory expenseCategory) {
         ExpenseCategoryDto expenseCategoryDto = new ExpenseCategoryDto();
         expenseCategoryDto.setName(expenseCategory.getName());
+
         return expenseCategoryDto;
     }
 
+    public ResponseEntity<ExpenseCategoryDto> getExpenseCategory(@PathVariable Long id) {
+        Optional<ExpenseCategory> optionalExpenseCategory = expenseCategoryRepository.findById(id);
+        if (optionalExpenseCategory.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ExpenseCategoryDto expenseCategoryDto = categoryToDto(optionalExpenseCategory.get());
+        return ResponseEntity.ok(expenseCategoryDto);
+    }
+
     public ResponseEntity<String> addExpenseCategory(ExpenseCategoryDto expenseCategoryDto) {
-        ExpenseCategory expenseCategory = new ExpenseCategory();
-        expenseCategory.setName(expenseCategoryDto.getName());
+        ExpenseCategory expenseCategory = dtoToCategory(expenseCategoryDto);
         expenseCategoryRepository.save(expenseCategory);
 
         URI location = ServletUriComponentsBuilder
@@ -56,6 +74,25 @@ public class ExpenseCategoryService {
 
                     return dto;
             }).collect(Collectors.toList());
+    }
+
+    public ResponseEntity<String> deleteExpenseCategory(Long id) {
+        Optional<ExpenseCategory> optionalExpenseCategory = expenseCategoryRepository.findById(id);
+        if (optionalExpenseCategory.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ExpenseCategory expenseCategory = optionalExpenseCategory.get();
+        expenseCategoryRepository.delete(expenseCategory);
+        return ResponseEntity.noContent().build();
+    }
+
+    
+    public ResponseEntity<ExpenseCategoryDto> editExpenseCategory(ExpenseCategoryDto expenseCategoryDto) {
+        ExpenseCategory expenseCategory = dtoToCategory(expenseCategoryDto);
+        expenseCategoryRepository.save(expenseCategory);
+
+        return ResponseEntity.ok(expenseCategoryDto); 
     }
     
 }
