@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.finance.tracker.dto.ExpenseCategoryDto;
-import com.finance.tracker.entities.Expense;
 import com.finance.tracker.entities.ExpenseCategory;
 import com.finance.tracker.repositories.ExpenseCategoryRepository;
 import com.finance.tracker.repositories.ExpenseRepository;

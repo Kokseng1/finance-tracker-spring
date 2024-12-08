@@ -1,35 +1,38 @@
 import { Link } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import EditExpense from "../components/EditExpense";
 
 function Home() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [expenseName, setExpenseName] = useState("");
-  const [amount, setAmount] = useState(undefined);
-  const [categoryId, setCategoryId] = useState(undefined);
+  const [amount, setAmount] = useState("");
+  const [categoryName, setCategoryName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [categoryError, setCategoryError] = useState("");
   const [categories, setCategories] = useState([]);
+  const [editedExpense, setEditedExpense] = useState(undefined);
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  const getCategories = async () => {
-    try {
-      const response = await axiosInstance.get(
-        "http://localhost:8080/expense_category/allCategories",
-        {
-          withCredentials: true,
-        }
-      );
+  useEffect(() => {
+    getCategories();
+    getdata();
+  }, []);
 
-      setCategories(response.data);
-    } catch (e) {
-      console.log(e);
-    } finally {
-    }
+  const getCategories = () => {
+    axiosInstance
+      .get("http://localhost:8080/expense_category/allCategories", {
+        withCredentials: true,
+      })
+      .then((response) => {
+        setCategories(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleChange = (e) => {
-    // console.log(e.target);
     const { name, value } = e.target;
     if (name == "expenseName") {
       setExpenseName(value);
@@ -37,31 +40,35 @@ function Home() {
     if (name == "amount") {
       setAmount(value);
     }
-    if (name == "categoryId") {
-      setCategoryId(value);
+    if (name == "categoryName") {
+      setCategoryName(value);
     }
   };
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
     setError("");
-    // if (!validateForm()) return;
 
     setIsSubmitting(true);
+    const categoryAdded = categories.find((cat) => cat.name === categoryName);
+    if (!categoryAdded) {
+      setError("No such category!");
+      setIsSubmitting(false);
+      return;
+    }
+    const category_id = categoryAdded.id;
 
     const expenseDto = {
       amount: amount,
       name: expenseName,
-      category_id: categoryId,
+      category_id: category_id,
     };
 
     try {
       const response = await axiosInstance.post(
         "http://localhost:8080/expense/add",
         expenseDto,
-        // new URLSearchParams(expenseData),
         {
-          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
@@ -69,19 +76,12 @@ function Home() {
           withCredentials: true,
         }
       );
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        // setError(errorMessage);
-        console.log(errorMessage);
-      } else {
-        if (response.status === 201) {
-          alert("expense added successfully!");
-        }
-      }
+      setAmount("");
+      setCategoryName("");
+      setExpenseName("");
+      getdata();
     } catch (error) {
       console.log(error);
-      // setError(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -104,14 +104,32 @@ function Home() {
     }
   };
 
-  const clickTestButton = async () => {
+  const toggleEditModal = (expense) => {
+    if (expense !== editedExpense) {
+      setEditedExpense(expense);
+      setShowEditModal(true);
+    } else {
+      setShowEditModal((s) => !s);
+    }
+  };
+
+  const showEditForCurrentExpense = (expense) => {
+    return showEditModal && editedExpense == expense;
+  };
+
+  const handleDelete = async (expense_id) => {
     try {
-      const response = await axiosInstance.get(
-        "http://localhost:8080/expense_category/allCategories",
+      const response = await axiosInstance.delete(
+        `http://localhost:8080/expense/${expense_id}`,
         {
+          headers: {
+            "Content-Type": "application/json",
+          },
           withCredentials: true,
         }
       );
+
+      getdata();
     } catch (error) {
       console.log(error);
     }
@@ -119,12 +137,11 @@ function Home() {
 
   return (
     <div className="Home">
-      <h1>Homeworks!</h1>
+      <h1>Expenses</h1>
       <div>
         <Link to="/expense_categories">Link to cats</Link>
       </div>
-      <button onClick={getdata}>Fetch Data</button>
-      {error && <p style={{ color: "red" }}>Error from backend: {error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <table>
         <thead>
           <tr>
@@ -132,16 +149,36 @@ function Home() {
             <th>category</th>
             <th>amount</th>
             <th>date</th>
+            <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {data &&
             data.map((expense) => (
-              <tr>
+              <tr key={expense.id}>
                 <td>{expense.name}</td>
                 <td> {expense.categoryName}</td>
                 <td> {expense.amount}</td>
                 <td> {expense.createdDate}</td>
+                <td>
+                  <button onClick={() => toggleEditModal(expense)}>edit</button>
+                  {showEditForCurrentExpense(expense) && (
+                    <div>
+                      showing edit modal
+                      <EditExpense
+                        expense={expense}
+                        categories={categories}
+                        onEditComplete={getdata}
+                      />
+                    </div>
+                  )}
+                </td>
+                <td>
+                  <button onClick={() => handleDelete(expense.id)}>
+                    delete
+                  </button>
+                </td>
               </tr>
             ))}
         </tbody>
@@ -175,17 +212,21 @@ function Home() {
             onChange={handleChange}
             required
           />
-        </div>{" "}
-        <div>
-          <input
-            type="number"
-            name="categoryId"
-            placeholder="cat id"
-            value={categoryId}
-            onChange={handleChange}
-            required
-          />
         </div>
+        <input
+          list="category-options"
+          name="categoryName"
+          value={categoryName}
+          onChange={handleChange}
+          placeholder="Select or type a category"
+          required
+        />
+        <datalist id="category-options">
+          {categories &&
+            categories.map((category) => (
+              <option key={category.id}>{category.name}</option>
+            ))}
+        </datalist>
         <button
           type="submit"
           style={{ width: "100px" }}
@@ -194,30 +235,6 @@ function Home() {
           {isSubmitting ? "Adding expense..." : "Add expense"}
         </button>
       </form>
-      <button onClick={getCategories}>Fetch cates</button>
-      <div>
-        {categories && (
-          <table>
-            <thead>
-              <tr>
-                <th>category name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories &&
-                categories.map((category, index) => (
-                  <tr key={index}>
-                    <td>{category.name}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-      {categoryError && (
-        <p style={{ color: "red" }}>Error from backend: {categoryError}</p>
-      )}
-      <button onClick={clickTestButton}>test button</button>
     </div>
   );
 }

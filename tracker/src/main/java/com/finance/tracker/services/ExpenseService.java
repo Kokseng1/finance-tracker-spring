@@ -90,7 +90,7 @@ public class ExpenseService {
     }
 
     public ResponseEntity<ExpenseDto> editExpense(ExpenseDto expenseDto, long id) {
-        Optional<Expense> optionalExpense = expenseRepository.findById(expenseDto.getId());
+        Optional<Expense> optionalExpense = expenseRepository.findById(id);
         if (optionalExpense.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
