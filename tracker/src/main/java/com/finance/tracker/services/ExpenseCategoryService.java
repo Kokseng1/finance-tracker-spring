@@ -7,15 +7,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.finance.tracker.dto.ExpenseCategoryDto;
-import com.finance.tracker.dto.ExpenseDto;
-import com.finance.tracker.entities.Expense;
 import com.finance.tracker.entities.ExpenseCategory;
 import com.finance.tracker.repositories.ExpenseCategoryRepository;
 import com.finance.tracker.repositories.ExpenseRepository;

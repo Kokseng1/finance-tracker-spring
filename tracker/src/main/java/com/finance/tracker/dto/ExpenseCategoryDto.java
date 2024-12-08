@@ -1,7 +1,5 @@
 package com.finance.tracker.dto;
 
-import java.time.LocalDateTime;
-
 import lombok.Getter;
 import lombok.Setter;
 
