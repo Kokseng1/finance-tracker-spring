@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.finance.tracker.entities.User;
 import com.finance.tracker.repositories.UserRepository;
 
-@RestController  // Use @RestController for handling REST responses
+@RestController
 public class RegistrationController {
 
     @Autowired
@@ -24,7 +24,6 @@ public class RegistrationController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestParam String username, @RequestParam String password) {
-        // Check if the username already exists
         if (userRepository.findByUsername(username).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST) 
                     .body("Username already taken");  

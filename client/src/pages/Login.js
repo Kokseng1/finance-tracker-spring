@@ -82,8 +82,8 @@ function LoginPage() {
         </div>{" "}
         <div style={{ padding: "6px" }}>
           <button onClick={postlogin}>Login</button>
-          {error && <p style={{ color: "red" }}>Error : {error}</p>}
         </div>
+        {error && <p style={{ color: "red" }}>Error : {error}</p>}
       </div>
     </div>
   );
