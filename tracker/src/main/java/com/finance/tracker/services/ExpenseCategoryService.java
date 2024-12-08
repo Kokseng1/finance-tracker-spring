@@ -88,8 +88,9 @@ public class ExpenseCategoryService {
     }
 
     
-    public ResponseEntity<ExpenseCategoryDto> editExpenseCategory(ExpenseCategoryDto expenseCategoryDto) {
+    public ResponseEntity<ExpenseCategoryDto> editExpenseCategory(ExpenseCategoryDto expenseCategoryDto, long id) {
         ExpenseCategory expenseCategory = dtoToCategory(expenseCategoryDto);
+        expenseCategory.setId(id);
         expenseCategoryRepository.save(expenseCategory);
 
         return ResponseEntity.ok(expenseCategoryDto); 

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { useState } from "react";
 
@@ -105,8 +106,8 @@ function Home() {
 
   const clickTestButton = async () => {
     try {
-      const response = await axiosInstance.delete(
-        "http://localhost:8080/expense/4",
+      const response = await axiosInstance.get(
+        "http://localhost:8080/expense_category/allCategories",
         {
           withCredentials: true,
         }
@@ -119,6 +120,9 @@ function Home() {
   return (
     <div className="Home">
       <h1>Homeworks!</h1>
+      <div>
+        <Link to="/expense_categories">Link to cats</Link>
+      </div>
       <button onClick={getdata}>Fetch Data</button>
       {error && <p style={{ color: "red" }}>Error from backend: {error}</p>}
       <table>

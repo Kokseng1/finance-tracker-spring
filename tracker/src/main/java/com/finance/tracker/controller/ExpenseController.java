@@ -44,8 +44,8 @@ public class ExpenseController {
         return expenseService.deleteExpense(id);
     }
 
-    @PutMapping("edit")
-    public ResponseEntity<ExpenseDto> EditExpense(@RequestBody ExpenseDto expenseDto) {
-        return expenseService.editExpense(expenseDto);
+    @PutMapping("/{id}")
+    public ResponseEntity<ExpenseDto> EditExpense(@RequestBody ExpenseDto expenseDto, @PathVariable long id) {
+        return expenseService.editExpense(expenseDto, id);
     }
 }

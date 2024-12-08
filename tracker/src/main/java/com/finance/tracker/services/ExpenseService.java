@@ -89,12 +89,13 @@ public class ExpenseService {
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<ExpenseDto> editExpense(ExpenseDto expenseDto) {
+    public ResponseEntity<ExpenseDto> editExpense(ExpenseDto expenseDto, long id) {
         Optional<Expense> optionalExpense = expenseRepository.findById(expenseDto.getId());
         if (optionalExpense.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         Expense expense = DtoToExpense(expenseDto);
+        expense.setId(id);
         expenseRepository.save(expense);
         return ResponseEntity.ok(expenseDto);
     }

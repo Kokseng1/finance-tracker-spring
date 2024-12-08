@@ -44,8 +44,8 @@ public class ExpenseCategoryController {
         return expenseCategoryService.deleteExpenseCategory(id);
     }
 
-    @PutMapping("edit")
-    public ResponseEntity<ExpenseCategoryDto> editExpense(@RequestBody ExpenseCategoryDto expenseCategoryDto) {
-        return expenseCategoryService.editExpenseCategory(expenseCategoryDto);
+    @PutMapping("/{id}")
+    public ResponseEntity<ExpenseCategoryDto> editExpense(@RequestBody ExpenseCategoryDto expenseCategoryDto, @PathVariable long id) {
+        return expenseCategoryService.editExpenseCategory(expenseCategoryDto, id);
     }
 }
