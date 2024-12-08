@@ -8,6 +8,24 @@ function Home() {
   const [amount, setAmount] = useState(undefined);
   const [categoryId, setCategoryId] = useState(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categoryError, setCategoryError] = useState("");
+  const [categories, setCategories] = useState([]);
+
+  const getCategories = async () => {
+    try {
+      const response = await axiosInstance.get(
+        "http://localhost:8080/expense_category/allCategories",
+        {
+          withCredentials: true,
+        }
+      );
+
+      setCategories(response.data);
+    } catch (e) {
+      console.log(e);
+    } finally {
+    }
+  };
 
   const handleChange = (e) => {
     // console.log(e.target);
@@ -89,6 +107,7 @@ function Home() {
     <div className="Home">
       <h1>Homeworks!</h1>
       <button onClick={getdata}>Fetch Data</button>
+      {error && <p style={{ color: "red" }}>Error from backend: {error}</p>}
       <table>
         <thead>
           <tr>
@@ -158,8 +177,29 @@ function Home() {
           {isSubmitting ? "Adding expense..." : "Add expense"}
         </button>
       </form>
-      {/* Render error message */}
-      {error && <p style={{ color: "red" }}>Error from backend: {error}</p>}
+      <button onClick={getCategories}>Fetch cates</button>
+      <div>
+        {categories && (
+          <table>
+            <thead>
+              <tr>
+                <th>category name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories &&
+                categories.map((category, index) => (
+                  <tr key={index}>
+                    <td>{category.name}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {categoryError && (
+        <p style={{ color: "red" }}>Error from backend: {categoryError}</p>
+      )}
     </div>
   );
 }

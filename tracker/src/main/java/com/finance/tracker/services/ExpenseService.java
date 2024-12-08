@@ -36,6 +36,7 @@ public class ExpenseService {
     public List<ExpenseDto> getAllExpenses() {
         return expenseRepository.findAll().stream().map(expense -> {
                     ExpenseDto dto = new ExpenseDto();
+                    dto.setId(expense.getId());
                     dto.setName(expense.getName());
                     dto.setCategoryName(expense.getCategory().getName());
                     dto.setCategory_id(expense.getCategory().getId());
