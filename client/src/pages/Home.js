@@ -30,20 +30,23 @@ function Home() {
 
     setIsSubmitting(true);
 
-    const expenseData = new URLSearchParams();
-    expenseData.append("name", expenseName);
-    expenseData.append("amount", amount);
-    expenseData.append("category_id", categoryId);
+    const expenseDto = {
+      amount: amount,
+      name: expenseName,
+      category_id: categoryId,
+    };
 
     try {
       const response = await axiosInstance.post(
         "http://localhost:8080/expense/add",
-        new URLSearchParams(expenseData),
+        expenseDto,
+        // new URLSearchParams(expenseData),
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
           },
+
           withCredentials: true,
         }
       );
@@ -92,6 +95,7 @@ function Home() {
             <th>name</th>
             <th>category</th>
             <th>amount</th>
+            <th>date</th>
           </tr>
         </thead>
         <tbody>
@@ -101,6 +105,7 @@ function Home() {
                 <td>{expense.name}</td>
                 <td> {expense.categoryName}</td>
                 <td> {expense.amount}</td>
+                <td> {expense.createdDate}</td>
               </tr>
             ))}
         </tbody>

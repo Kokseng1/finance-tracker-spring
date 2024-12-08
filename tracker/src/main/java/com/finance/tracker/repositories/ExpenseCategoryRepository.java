@@ -5,6 +5,6 @@ import com.finance.tracker.entities.ExpenseCategory;
 
 import java.util.Optional;
 
-public interface ExpenseRepositoryCategory extends JpaRepository<ExpenseCategory, Long> {
+public interface ExpenseCategoryRepository extends JpaRepository<ExpenseCategory, Long> {
     Optional<ExpenseCategory> findByName(String name);
 }
